@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pingpong/widget/pong.dart';
 
 class HomeScreenPingpong extends StatelessWidget {
   const HomeScreenPingpong({super.key});
@@ -11,10 +12,9 @@ class HomeScreenPingpong extends StatelessWidget {
         backgroundColor: Colors.red,
         centerTitle: true,
       ),
-      body: const SafeArea(
-          child: Column(
-        children: [Text('pingpong app')],
-      )),
+      body: SafeArea(
+        child: Pong(),
+      ),
     );
   }
 }
