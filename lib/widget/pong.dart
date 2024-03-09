@@ -24,6 +24,8 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
   double batWidth = 0;
   double batHeigth = 0;
   double batPosition = 0;
+  Direction vDir = Direction.down;
+  Direction hDir = Direction.right;
 
   @override
   void initState() {
