@@ -25,13 +25,22 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
+    super.initState();
+
     posX = 0;
     posX = 0;
     controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(minutes: 1),
     );
-    super.initState();
+    animation = Tween<double>(begin: 0, end: 100).animate(controller!);
+    animation!.addListener(() {
+      setState(() {
+        posX++;
+        posY++;
+      });
+    });
+    controller?.forward();
   }
 
   @override
@@ -40,12 +49,13 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
       builder: (BuildContext context, BoxConstraints constraints) {
         height = constraints.maxHeight;
         width = constraints.maxWidth;
-        batWidth = width! / 4;
-        batHeigth = height! / 25;
+        batWidth = width! / 5;
+        batHeigth = height! / 20;
         return Stack(
           children: [
-            const Positioned(
-              top: 0,
+            Positioned(
+              top: posY,
+              left: posX,
               child: Ball(),
             ),
             Positioned(
