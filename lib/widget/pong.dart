@@ -3,6 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'package:pingpong/widget/ball.dart';
 import 'package:pingpong/widget/bat.dart';
 
+enum Direction { up, down, left, right }
+
 class Pong extends StatefulWidget {
   const Pong({super.key});
 
