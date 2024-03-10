@@ -1,5 +1,5 @@
 import 'dart:math';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:pingpong/widget/ball.dart';
 import 'package:pingpong/widget/bat.dart';
@@ -30,8 +30,10 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
   Direction hDir = Direction.right;
 
   double speed = 5;
-
   int score = 0;
+  SharedPreferences? prefs;
+  int? highScore;
+
   @override
   void initState() {
     super.initState();
@@ -42,6 +44,8 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
     );
     animation = Tween<double>(begin: 0, end: 100).animate(controller!);
     animation!.addListener(() {
+      readHighScore();
+
       setState(() {
         (hDir == Direction.right ? posX += speed : posX -= speed);
         (vDir == Direction.down ? posY += speed : posY -= speed);
@@ -67,8 +71,8 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
               right: 1,
               child: Column(
                 children: [
-                  const Text('Score :'),
-                  Text(score.toString())
+                  Text('Score :$score'),
+                  Text('High score:${highScore.toString()} ')
                 ],
               ),
             ),
@@ -114,6 +118,13 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
                       },
                       child: const Text('restart'),
                     ),
+                    ElevatedButton(
+                      onPressed: () {
+                        controller!.stop();
+                        clearHighScore(context);
+                      },
+                      child: const Text('Clear Score'),
+                    ),
                   ],
                 ),
               ),
@@ -138,7 +149,7 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
           score += 1;
         });
       } else {
-        resetScore();
+        setHighScore(score);
         controller!.stop();
         gameOver(context);
         // dispose();
@@ -191,23 +202,30 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
       posY = 0;
       speed = 5;
     });
+    resetScore();
   }
 
   void gameOver(BuildContext context) {
+    TextStyle textStyle = TextStyle(fontSize: 20);
     showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Center(
-              child: Text('Game Over'),
+              child: Text(
+                'Game Over',
+                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+              ),
             ),
             content: SizedBox(
-              height: 40,
+              height: 50,
               child: Column(
                 children: [
-                  Text('Score :$score'),
-                  const Text('High score: '),
+                  Text(
+                    'Score :$score',
+                    style: textStyle,
+                  ),
                 ],
               ),
             ),
@@ -218,6 +236,49 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
                         {Navigator.of(context).pop(), restartPingpong()},
                     child: const Text('Restart')),
               )
+            ],
+          );
+        });
+  }
+
+  void readHighScore() async {
+    prefs = await SharedPreferences.getInstance();
+    highScore = prefs!.getInt('highScore');
+    if (highScore == null) {
+      await prefs!.setInt("highScore", 0);
+    }
+  }
+
+  void setHighScore(int currentScore) {
+    if (highScore! < currentScore) {
+      prefs!.setInt('highScore', score);
+    }
+  }
+
+  void clearHighScore(BuildContext context) {
+    TextStyle textStyle = TextStyle(fontSize: 20);
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Center(
+              child: Text(
+                'Delete Score?',
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                  onPressed: () =>
+                      {Navigator.of(context).pop(), controller!.forward()},
+                  child: const Text('No')),
+              TextButton(
+                  onPressed: () => {
+                        Navigator.of(context).pop(),
+                        prefs!.setInt('highScore', 0),
+                        controller!.forward(),
+                      },
+                  child: const Text('Yes')),
             ],
           );
         });
