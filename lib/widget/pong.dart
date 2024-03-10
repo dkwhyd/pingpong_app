@@ -31,6 +31,8 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
   Direction hDir = Direction.right;
 
   double speed = 5;
+
+  int score = 0;
   @override
   void initState() {
     super.initState();
@@ -61,6 +63,16 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
         batHeigth = height! / 25;
         return Stack(
           children: [
+            Positioned(
+              top: 0,
+              right: 1,
+              child: Column(
+                children: [
+                  Text('Score :'),
+                  Text(score == null ? '0' : score.toString())
+                ],
+              ),
+            ),
             Positioned(
               top: posY,
               left: posX,
@@ -129,8 +141,12 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
     if (posY >= height! - 50 - batHeigth && vDir == Direction.down) {
       if (posX >= (batPosition - 50) && posX <= (batPosition + batWidth + 50)) {
         vDir = Direction.up;
+        setState(() {
+          score += 1;
+        });
         print('bawah');
       } else {
+        resetScore();
         controller!.stop();
         // dispose();
         print('game over');
@@ -169,5 +185,11 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
         speed -= 5;
       });
     }
+  }
+
+  void resetScore() {
+    setState(() {
+      score = 0;
+    });
   }
 }
