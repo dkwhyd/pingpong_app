@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:pingpong/widget/ball.dart';
 import 'package:pingpong/widget/bat.dart';
 
@@ -68,8 +67,8 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
               right: 1,
               child: Column(
                 children: [
-                  Text('Score :'),
-                  Text(score == null ? '0' : score.toString())
+                  const Text('Score :'),
+                  Text(score.toString())
                 ],
               ),
             ),
@@ -90,30 +89,30 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
             Positioned(
               bottom: 10,
               child: Padding(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 child: Row(
                   children: [
-                    Text('Level : '),
+                    const Text('Level : '),
                     ElevatedButton(
                         onPressed: () {
                           decrementSpeed();
                         },
-                        child: Text('-')),
+                        child: const Text('-')),
                     Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Text(speed == null ? '' : speed.toString()),
+                      padding: const EdgeInsets.all(10),
+                      child: Text(speed.toString()),
                     ),
                     ElevatedButton(
                       onPressed: () {
                         incrementSpeed();
                       },
-                      child: Text('+'),
+                      child: const Text('+'),
                     ),
                     ElevatedButton(
                       onPressed: () {
                         restartPingpong();
                       },
-                      child: Text('restart'),
+                      child: const Text('restart'),
                     ),
                   ],
                 ),
@@ -128,11 +127,9 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
   void checkBorders() {
     if (posX <= 0 && hDir == Direction.left) {
       hDir = Direction.right;
-      print('kiri');
     }
     if ((posX >= width! - 50) && (hDir == Direction.right)) {
       hDir = Direction.left;
-      print('kanan');
     }
     if (posY >= height! - 50 - batHeigth && vDir == Direction.down) {
       if (posX >= (batPosition - 50) && posX <= (batPosition + batWidth + 50)) {
@@ -140,19 +137,16 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
         setState(() {
           score += 1;
         });
-        print('bawah');
       } else {
         resetScore();
         controller!.stop();
         gameOver(context);
         // dispose();
-        print('game over');
       }
     }
 
     if (posY <= 0 && vDir == Direction.up) {
       vDir = Direction.down;
-      print("atas");
     }
   }
 
@@ -208,12 +202,12 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
             title: const Center(
               child: Text('Game Over'),
             ),
-            content: Container(
+            content: SizedBox(
               height: 40,
               child: Column(
                 children: [
-                  Text('Score :${score}'),
-                  Text('High score: '),
+                  Text('Score :$score'),
+                  const Text('High score: '),
                 ],
               ),
             ),
@@ -222,7 +216,7 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
                 child: TextButton(
                     onPressed: () =>
                         {Navigator.of(context).pop(), restartPingpong()},
-                    child: Text('Restart')),
+                    child: const Text('Restart')),
               )
             ],
           );
