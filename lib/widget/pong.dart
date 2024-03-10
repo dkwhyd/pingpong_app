@@ -110,12 +110,8 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
                       child: Text('+'),
                     ),
                     ElevatedButton(
-                      onPressed: () => {
-                        controller!.forward(),
-                        setState(() {
-                          posX = 0;
-                          posY = 0;
-                        })
+                      onPressed: () {
+                        restartPingpong();
                       },
                       child: Text('restart'),
                     ),
@@ -148,6 +144,7 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
       } else {
         resetScore();
         controller!.stop();
+        gameOver(context);
         // dispose();
         print('game over');
       }
@@ -191,5 +188,44 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
     setState(() {
       score = 0;
     });
+  }
+
+  void restartPingpong() {
+    controller!.forward();
+    setState(() {
+      posX = 0;
+      posY = 0;
+      speed = 5;
+    });
+  }
+
+  void gameOver(BuildContext context) {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Center(
+              child: Text('Game Over'),
+            ),
+            content: Container(
+              height: 40,
+              child: Column(
+                children: [
+                  Text('Score :${score}'),
+                  Text('High score: '),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              Center(
+                child: TextButton(
+                    onPressed: () =>
+                        {Navigator.of(context).pop(), restartPingpong()},
+                    child: Text('Restart')),
+              )
+            ],
+          );
+        });
   }
 }
