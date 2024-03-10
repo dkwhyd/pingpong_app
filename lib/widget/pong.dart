@@ -41,11 +41,12 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
     );
     animation = Tween<double>(begin: 0, end: 100).animate(controller!);
     animation!.addListener(() {
-      checkBorders();
       setState(() {
         (hDir == Direction.right ? posX += speed : posX -= speed);
         (vDir == Direction.down ? posY += speed : posY -= speed);
       });
+
+      checkBorders();
     });
     controller?.forward();
   }
@@ -54,23 +55,64 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        height = constraints.maxHeight;
+        height = constraints.maxHeight - 100;
         width = constraints.maxWidth;
-        batWidth = width! / 5;
-        batHeigth = height! / 20;
+        batWidth = width! / 4;
+        batHeigth = height! / 25;
         return Stack(
           children: [
             Positioned(
               top: posY,
               left: posX,
-              child: Ball(),
+              child: const Ball(),
             ),
             Positioned(
-              bottom: 0,
+              bottom: 100,
+              left: batPosition,
               child: GestureDetector(
                 onHorizontalDragUpdate: (DragUpdateDetails update) =>
                     moveBat(update),
                 child: Bat(batWidth, batHeigth),
+              ),
+            ),
+            Positioned(
+              bottom: 10,
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Text('Level : '),
+                    ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            speed -= 5;
+                          });
+                        },
+                        child: Text('-')),
+                    Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Text(speed == null ? '' : speed.toString()),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          speed += 5;
+                        });
+                      },
+                      child: Text('+'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => {
+                        controller!.forward(),
+                        setState(() {
+                          posX = 0;
+                          posY = 0;
+                        })
+                      },
+                      child: Text('restart'),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -94,7 +136,7 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
         print('bawah');
       } else {
         controller!.stop();
-        dispose();
+        // dispose();
         print('game over');
       }
     }
@@ -110,4 +152,14 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
       batPosition += update.delta.dx;
     });
   }
+
+  void safeSetState(Function function) {
+    if (mounted && controller!.isAnimating) {
+      setState(() {
+        function();
+      });
+    }
+  }
+
+
 }
