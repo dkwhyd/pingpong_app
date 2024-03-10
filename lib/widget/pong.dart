@@ -84,9 +84,7 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
                     Text('Level : '),
                     ElevatedButton(
                         onPressed: () {
-                          setState(() {
-                            speed -= 5;
-                          });
+                          decrementSpeed();
                         },
                         child: Text('-')),
                     Padding(
@@ -95,9 +93,7 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        setState(() {
-                          speed += 5;
-                        });
+                        incrementSpeed();
                       },
                       child: Text('+'),
                     ),
@@ -161,5 +157,17 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
     }
   }
 
+  void incrementSpeed() {
+    setState(() {
+      speed += 5;
+    });
+  }
 
+  void decrementSpeed() {
+    if (speed > 5) {
+      setState(() {
+        speed -= 5;
+      });
+    }
+  }
 }
