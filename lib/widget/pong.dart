@@ -1,7 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pingpong/widget/ball.dart';
 import 'package:pingpong/widget/bat.dart';
+
+enum Direction { up, down, left, right }
 
 class Pong extends StatefulWidget {
   const Pong({super.key});
@@ -15,6 +19,7 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
   Animation<double>? animation;
   AnimationController? controller;
 
+  Random randomPos = Random();
   double? width;
   double? height;
   double posX = 0;
@@ -22,16 +27,27 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
   double batWidth = 0;
   double batHeigth = 0;
   double batPosition = 0;
+  Direction vDir = Direction.down;
+  Direction hDir = Direction.right;
 
+  double speed = 5;
   @override
   void initState() {
-    posX = 0;
-    posX = 0;
+    super.initState();
+
     controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(minutes: 1000),
     );
-    super.initState();
+    animation = Tween<double>(begin: 0, end: 100).animate(controller!);
+    animation!.addListener(() {
+      checkBorders();
+      setState(() {
+        (hDir == Direction.right ? posX += speed : posX -= speed);
+        (vDir == Direction.down ? posY += speed : posY -= speed);
+      });
+    });
+    controller?.forward();
   }
 
   @override
@@ -40,21 +56,42 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
       builder: (BuildContext context, BoxConstraints constraints) {
         height = constraints.maxHeight;
         width = constraints.maxWidth;
-        batWidth = width! / 4;
-        batHeigth = height! / 25;
+        batWidth = width! / 5;
+        batHeigth = height! / 20;
         return Stack(
           children: [
-            const Positioned(
-              top: 0,
+            Positioned(
+              top: posY,
+              left: posX,
               child: Ball(),
             ),
             Positioned(
               bottom: 0,
-              child: Bat(batWidth, batHeigth),
+              child: Bat(100, batHeigth),
             ),
           ],
         );
       },
     );
+  }
+
+  void checkBorders() {
+    if (posX <= 0 && hDir == Direction.left) {
+      hDir = Direction.right;
+      print('kiri');
+    }
+    if ((posX >= width! - 50) && (hDir == Direction.right)) {
+      hDir = Direction.left;
+      print('kanan');
+    }
+    if (posY >= height! - 50 && vDir == Direction.down) {
+      vDir = Direction.up;
+      print('bawah');
+    }
+
+    if (posY <= 0 && vDir == Direction.up) {
+      vDir = Direction.down;
+      print("atas");
+    }
   }
 }

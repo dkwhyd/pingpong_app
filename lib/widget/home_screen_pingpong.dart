@@ -12,7 +12,7 @@ class HomeScreenPingpong extends StatelessWidget {
         backgroundColor: Colors.red,
         centerTitle: true,
       ),
-      body: SafeArea(
+      body:  SafeArea(
         child: Pong(),
       ),
     );
