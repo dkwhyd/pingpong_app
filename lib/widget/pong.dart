@@ -118,6 +118,13 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
                       },
                       child: const Text('restart'),
                     ),
+                    ElevatedButton(
+                      onPressed: () {
+                        controller!.stop();
+                        clearHighScore(context);
+                      },
+                      child: const Text('Clear Score'),
+                    ),
                   ],
                 ),
               ),
@@ -219,10 +226,6 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
                     'Score :$score',
                     style: textStyle,
                   ),
-                  // Text(
-                  //   'High score: ${highScore}',
-                  //   style: textStyle,
-                  // ),
                 ],
               ),
             ),
@@ -241,11 +244,43 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
   void readHighScore() async {
     prefs = await SharedPreferences.getInstance();
     highScore = prefs!.getInt('highScore');
+    if (highScore == null) {
+      await prefs!.setInt("highScore", 0);
+    }
   }
 
   void setHighScore(int currentScore) {
     if (highScore! < currentScore) {
       prefs!.setInt('highScore', score);
     }
+  }
+
+  void clearHighScore(BuildContext context) {
+    TextStyle textStyle = TextStyle(fontSize: 20);
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Center(
+              child: Text(
+                'Delete Score?',
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                  onPressed: () =>
+                      {Navigator.of(context).pop(), controller!.forward()},
+                  child: const Text('No')),
+              TextButton(
+                  onPressed: () => {
+                        Navigator.of(context).pop(),
+                        prefs!.setInt('highScore', 0),
+                        controller!.forward(),
+                      },
+                  child: const Text('Yes')),
+            ],
+          );
+        });
   }
 }
