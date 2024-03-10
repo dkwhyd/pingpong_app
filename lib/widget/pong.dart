@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pingpong/widget/ball.dart';
@@ -17,6 +19,7 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
   Animation<double>? animation;
   AnimationController? controller;
 
+  Random randomPos = Random();
   double? width;
   double? height;
   double posX = 0;
@@ -27,21 +30,21 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
   Direction vDir = Direction.down;
   Direction hDir = Direction.right;
 
+  double speed = 5;
   @override
   void initState() {
     super.initState();
 
-    posX = 0;
-    posX = 0;
     controller = AnimationController(
       vsync: this,
-      duration: const Duration(minutes: 1),
+      duration: const Duration(minutes: 1000),
     );
     animation = Tween<double>(begin: 0, end: 100).animate(controller!);
     animation!.addListener(() {
+      checkBorders();
       setState(() {
-        posX++;
-        posY++;
+        (hDir == Direction.right ? posX += speed : posX -= speed);
+        (vDir == Direction.down ? posY += speed : posY -= speed);
       });
     });
     controller?.forward();
@@ -64,11 +67,31 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
             ),
             Positioned(
               bottom: 0,
-              child: Bat(batWidth, batHeigth),
+              child: Bat(100, batHeigth),
             ),
           ],
         );
       },
     );
+  }
+
+  void checkBorders() {
+    if (posX <= 0 && hDir == Direction.left) {
+      hDir = Direction.right;
+      print('kiri');
+    }
+    if ((posX >= width! - 50) && (hDir == Direction.right)) {
+      hDir = Direction.left;
+      print('kanan');
+    }
+    if (posY >= height! - 50 && vDir == Direction.down) {
+      vDir = Direction.up;
+      print('bawah');
+    }
+
+    if (posY <= 0 && vDir == Direction.up) {
+      vDir = Direction.down;
+      print("atas");
+    }
   }
 }
