@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:pingpong/widget/ball.dart';
 import 'package:pingpong/widget/bat.dart';
 
@@ -31,6 +30,8 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
   Direction hDir = Direction.right;
 
   double speed = 5;
+
+  int score = 0;
   @override
   void initState() {
     super.initState();
@@ -41,11 +42,12 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
     );
     animation = Tween<double>(begin: 0, end: 100).animate(controller!);
     animation!.addListener(() {
-      checkBorders();
       setState(() {
         (hDir == Direction.right ? posX += speed : posX -= speed);
         (vDir == Direction.down ? posY += speed : posY -= speed);
       });
+
+      checkBorders();
     });
     controller?.forward();
   }
@@ -54,23 +56,66 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        height = constraints.maxHeight;
+        height = constraints.maxHeight - 100;
         width = constraints.maxWidth;
-        batWidth = width! / 5;
-        batHeigth = height! / 20;
+        batWidth = width! / 4;
+        batHeigth = height! / 25;
         return Stack(
           children: [
             Positioned(
-              top: posY,
-              left: posX,
-              child: Ball(),
+              top: 0,
+              right: 1,
+              child: Column(
+                children: [
+                  const Text('Score :'),
+                  Text(score.toString())
+                ],
+              ),
             ),
             Positioned(
-              bottom: 0,
+              top: posY,
+              left: posX,
+              child: const Ball(),
+            ),
+            Positioned(
+              bottom: 100,
+              left: batPosition,
               child: GestureDetector(
                 onHorizontalDragUpdate: (DragUpdateDetails update) =>
                     moveBat(update),
                 child: Bat(batWidth, batHeigth),
+              ),
+            ),
+            Positioned(
+              bottom: 10,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    const Text('Level : '),
+                    ElevatedButton(
+                        onPressed: () {
+                          decrementSpeed();
+                        },
+                        child: const Text('-')),
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Text(speed.toString()),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        incrementSpeed();
+                      },
+                      child: const Text('+'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        restartPingpong();
+                      },
+                      child: const Text('restart'),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -82,20 +127,26 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
   void checkBorders() {
     if (posX <= 0 && hDir == Direction.left) {
       hDir = Direction.right;
-      print('kiri');
     }
     if ((posX >= width! - 50) && (hDir == Direction.right)) {
       hDir = Direction.left;
-      print('kanan');
     }
-    if (posY >= height! - 50 && vDir == Direction.down) {
-      vDir = Direction.up;
-      print('bawah');
+    if (posY >= height! - 50 - batHeigth && vDir == Direction.down) {
+      if (posX >= (batPosition - 50) && posX <= (batPosition + batWidth + 50)) {
+        vDir = Direction.up;
+        setState(() {
+          score += 1;
+        });
+      } else {
+        resetScore();
+        controller!.stop();
+        gameOver(context);
+        // dispose();
+      }
     }
 
     if (posY <= 0 && vDir == Direction.up) {
       vDir = Direction.down;
-      print("atas");
     }
   }
 
@@ -103,5 +154,72 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
     setState(() {
       batPosition += update.delta.dx;
     });
+  }
+
+  void safeSetState(Function function) {
+    if (mounted && controller!.isAnimating) {
+      setState(() {
+        function();
+      });
+    }
+  }
+
+  void incrementSpeed() {
+    setState(() {
+      speed += 5;
+    });
+  }
+
+  void decrementSpeed() {
+    if (speed > 5) {
+      setState(() {
+        speed -= 5;
+      });
+    }
+  }
+
+  void resetScore() {
+    setState(() {
+      score = 0;
+    });
+  }
+
+  void restartPingpong() {
+    controller!.forward();
+    setState(() {
+      posX = 0;
+      posY = 0;
+      speed = 5;
+    });
+  }
+
+  void gameOver(BuildContext context) {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Center(
+              child: Text('Game Over'),
+            ),
+            content: SizedBox(
+              height: 40,
+              child: Column(
+                children: [
+                  Text('Score :$score'),
+                  const Text('High score: '),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              Center(
+                child: TextButton(
+                    onPressed: () =>
+                        {Navigator.of(context).pop(), restartPingpong()},
+                    child: const Text('Restart')),
+              )
+            ],
+          );
+        });
   }
 }
