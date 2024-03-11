@@ -96,7 +96,7 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
                 padding: const EdgeInsets.all(20),
                 child: Row(
                   children: [
-                    const Text('Level : '),
+                    const Text('Speed : '),
                     ElevatedButton(
                         onPressed: () {
                           decrementSpeed();
@@ -113,17 +113,27 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
                       child: const Text('+'),
                     ),
                     ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue),
                       onPressed: () {
                         restartPingpong();
                       },
-                      child: const Text('restart'),
+                      child: const Text(
+                        'restart',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                     ElevatedButton(
+                      style:
+                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
                       onPressed: () {
                         controller!.stop();
                         clearHighScore(context);
                       },
-                      child: const Text('Clear Score'),
+                      child: const Text(
+                        'Clear Score',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ],
                 ),
