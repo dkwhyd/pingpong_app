@@ -143,7 +143,7 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
       hDir = Direction.left;
     }
     if (posY >= height! - 50 - batHeigth && vDir == Direction.down) {
-      if (posX >= (batPosition - 50) && posX <= (batPosition + batWidth + 50)) {
+      if (posX >= (batPosition - 50) && posX <= (batPosition + batWidth)) {
         vDir = Direction.up;
         setState(() {
           score += 1;
